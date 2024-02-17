@@ -13,12 +13,14 @@ Sequence::Sequence(size_type sz)
         tail = head;  
     } 
 
-    for(int i=0; i < sz-1; i++){
+    for(unsigned int i=0; i < sz-1; i++){
         tail->next = new SequenceNode();
         tail->next->prev = tail;
         tail = tail->next;
     }
 }
+
+
 
 //TODO
 Sequence::Sequence(const Sequence& s)
@@ -26,20 +28,23 @@ Sequence::Sequence(const Sequence& s)
     
 } 
 
+
+
+
 Sequence::~Sequence()
 {
-    SequenceNode * current = head; 
-    while (current != nullptr){ 
-        SequenceNode * killMeNext = current->next; 
-        delete current; 
-        current = killMeNext; 
-    } 
+    clear();
 }
 
+
+//TODO
 Sequence& Sequence::operator=(const Sequence& s)
 {
     return *this;
 }
+
+
+
 
 Sequence::value_type& Sequence::operator[](size_type position){
     SequenceNode * current = head;
@@ -52,33 +57,84 @@ Sequence::value_type& Sequence::operator[](size_type position){
     if(current == nullptr){
             cout << "There is no element: " << position << endl;
             throw exception();
-    } else {
-        return current->elt;   }
+    } 
+    else {
+        return current->elt;   
+    }
 }
+
+
+
 
 void Sequence::push_back(const value_type& value)
 {
-    tail->next = new SequenceNode();
-    tail->next->prev = tail;
-    tail = tail->next;
-    tail->elt = value;
+    if(size() > 0){
+        tail->next = new SequenceNode();
+        tail->next->prev = tail;
+        tail = tail->next;
+        tail->elt = value;
+        numElts++;
+    } else {
+        tail = new SequenceNode();
+        head = tail;
+        tail->elt = value;
+        numElts++;
+    }
 }
 
-//TODO
+
+
+
+
 void Sequence::pop_back()
 {
     SequenceNode * to_delete = tail;
     if (head != nullptr){ 
         tail = tail->prev;
+        tail->next = nullptr;
         delete to_delete;
     } 
+    else if(head == tail){
+        delete head;
+        head = tail = nullptr;
+    }
+    numElts--;
 }
 
-//TODO
+
+
+
 void Sequence::insert(size_type position, value_type value)
 {
-    throw exception();
+    if(position > size() || position < 0){
+        cout << "No element " << position << endl;
+        throw exception();
+    }
+    SequenceNode * new_node = new SequenceNode();
+    SequenceNode * current = head;
+    new_node->elt = value;
+    if(size() == 0 || position == size()){
+        push_back(value);
+        delete new_node;
+    }
+    else if(position == 0){
+        new_node->next = head;
+        head->prev = new_node;
+        head = new_node;
+    }
+    else {
+        for(unsigned int i = 0; i < position-1; i++){
+            current = current->next;
+        }
+        current->next->prev = new_node;
+        new_node->next = current->next;
+        new_node->prev = current;
+        current->next = new_node;
+    }
 }
+
+
+
 
 const Sequence::value_type& Sequence::front() const
 {
@@ -90,6 +146,9 @@ const Sequence::value_type& Sequence::front() const
     }
 }
 
+
+
+
 const Sequence::value_type& Sequence::back() const
 {
     if(head == nullptr){
@@ -100,6 +159,9 @@ const Sequence::value_type& Sequence::back() const
     }
 }
 
+
+
+
 bool Sequence::empty() const
 {
     bool empty = false;
@@ -109,37 +171,58 @@ bool Sequence::empty() const
     return empty;
 }
 
+
+
+
 Sequence::size_type Sequence::size() const
 {
-    SequenceNode * current = head;
-    int i = 0;
-    while(current != nullptr){
-        i++;
-        current = current->next;
-    }
-    return i;
+    return numElts;
 }
 
-//TODO
+
+
+
+
 void Sequence::clear()
 {
-
+    SequenceNode * current = head; 
+    while (current != nullptr){ 
+        SequenceNode * killMeNext = current->next; 
+        delete current; 
+        current = killMeNext;
+    }
+    head = nullptr;
+    tail = nullptr;
+    numElts = 0;
 }
+
+
+
 
 //TODO
 void Sequence::erase(size_type position, size_type count)
-{
-    throw exception();
+{   
+    
 }
+
+
+
 
 void Sequence::print(ostream& os) const
 {
     SequenceNode * current = head;
+    if(head == nullptr){
+        os << "There are not elements in the list.";
+    }
     while (current != nullptr){
-        os << current -> elt << endl;
+        os << current -> elt << " ";
         current = current->next ;
     }
+    os << endl;
 }
+
+
+
 
 // Don't modify, do the output in the print() method
 ostream& operator<<(ostream& os, const Sequence& s)
