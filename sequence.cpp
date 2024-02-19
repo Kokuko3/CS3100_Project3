@@ -1,8 +1,22 @@
 #include "sequence.h"
 
+//----------------------------------------------------------------
+// Mason McDaniel 
+// Project 3: Linked Sequence Data Structure
+//    FILE: Sequence.cpp
+//    Sequence class is implemented as a  that supports random access like an array, 
+//    but also allows dynamic insertion and removal of new elements.
+//----------------------------------------------------------------
 
+
+
+// -----------------------------------------------
+// Constructor for Sequence Class
+//      Input: sz -- size of the sequence
+// -----------------------------------------------
 Sequence::Sequence(size_type sz)
 {   
+
     numElts = sz;
 
     if(sz == 0){
@@ -12,7 +26,8 @@ Sequence::Sequence(size_type sz)
         head = new SequenceNode(); 
         tail = head;  
     } 
-
+    
+    //Attach each node to the list and link it to the previous node's
     for(unsigned int i=0; i < sz-1; i++){
         tail->next = new SequenceNode();
         tail->next->prev = tail;
@@ -22,7 +37,11 @@ Sequence::Sequence(size_type sz)
 
 
 
-//TODO
+// -----------------------------------------------
+// Copy Constructor for Sequence Class
+//      Input: s -- sequence to copy
+// -----------------------------------------------
+// TODO
 Sequence::Sequence(const Sequence& s)
 {
     
@@ -30,14 +49,23 @@ Sequence::Sequence(const Sequence& s)
 
 
 
-
+// -----------------------------------------------
+// Destructor for Sequence Class
+//      Destroys all items in the sequence and releases 
+//      the memory associated with the sequence
+// -----------------------------------------------
 Sequence::~Sequence()
 {
     clear();
 }
 
 
-//TODO
+// -----------------------------------------------
+// Override operator =
+//      Override's the = operator to allow for a sequence
+//      to be replaced by a deep copy.
+// -----------------------------------------------
+// TODO
 Sequence& Sequence::operator=(const Sequence& s)
 {
     return *this;
@@ -45,19 +73,31 @@ Sequence& Sequence::operator=(const Sequence& s)
 
 
 
-
+// ---------------------------------------------------------------------------
+// Override operator []
+//      Inputs: position -- The position of the item in the list.
+//          Must satisfy condition: position >= 0 && position <= last_index(). 
+//      Returns: A reference to the item at index position in the sequence.
+//          throws an exception if the position is outside the bounds of the sequence
+// --------------------------------------------------------------------------
 Sequence::value_type& Sequence::operator[](size_type position){
+
+    // Local variables
     SequenceNode * current = head;
+
+    // Walk through the list until current points at position
     for(unsigned int i = 0; i < position; i++){
         if(current == nullptr){
             throw exception();
         }
         current = current->next;
     }
-    if(current == nullptr){
+
+    //Exception if outside the list
+    if(current == nullptr || position < 0){
             cout << "There is no element: " << position << endl;
             throw exception();
-    } 
+    }
     else {
         return current->elt;   
     }
@@ -65,16 +105,24 @@ Sequence::value_type& Sequence::operator[](size_type position){
 
 
 
-
+// ---------------------------------------------------------------------------
+// push_back() -- grows the sequence by adding values to the end.
+//      Inputs: value -- The value of item is append to the sequence.
+// --------------------------------------------------------------------------
 void Sequence::push_back(const value_type& value)
-{
+{   
+    // Connects the node to the position after 
+    // tail and makes that node the new tail. 
     if(size() > 0){
         tail->next = new SequenceNode();
         tail->next->prev = tail;
         tail = tail->next;
         tail->elt = value;
         numElts++;
-    } else {
+    } 
+    
+    // If there is only one node, point head and tail at that node.
+    else {
         tail = new SequenceNode();
         head = tail;
         tail->elt = value;
@@ -85,7 +133,10 @@ void Sequence::push_back(const value_type& value)
 
 
 
-
+// ---------------------------------------------------------------------------
+// pop_back -- grows the sequence by adding values to the end.
+//      Inputs: value -- The value of item is append to the sequence.
+// --------------------------------------------------------------------------
 void Sequence::pop_back()
 {
     SequenceNode * to_delete = tail;
@@ -103,25 +154,44 @@ void Sequence::pop_back()
 
 
 
-
+// ---------------------------------------------------------------------------
+// Insert -- The data is inserted at the designated position,
+//           and the remaining items in the sequence are shifted to the right. 
+//      Inputs: 
+//          position -- The position of the item in the list.
+//              Must satisfy condition: position >= 0 && position <= last_index(). 
+//              
+//          value -- the value (elt) to be added to the sequence node inserted.
+// --------------------------------------------------------------------------
 void Sequence::insert(size_type position, value_type value)
-{
+{   
+    //Exception if position is out of range.
     if(position > size() || position < 0){
         cout << "No element " << position << endl;
         throw exception();
     }
+
+    //Create node to be added and a pointer to itterate.
     SequenceNode * new_node = new SequenceNode();
     SequenceNode * current = head;
+
+    //Assign value to new element
     new_node->elt = value;
+
+    // If no items in the list or at the end, push_back.
     if(size() == 0 || position == size()){
         push_back(value);
         delete new_node;
     }
+
+    // If first item, change it to be new head node.
     else if(position == 0){
         new_node->next = head;
         head->prev = new_node;
         head = new_node;
     }
+
+    // Move to position and insert the node there.
     else {
         for(unsigned int i = 0; i < position-1; i++){
             current = current->next;
@@ -135,7 +205,10 @@ void Sequence::insert(size_type position, value_type value)
 
 
 
-
+// ---------------------------------------------------------------------------
+// front -- rerturns the element at the head of the sequence
+//      Returns: value -- The value of item at head of sequence.
+// --------------------------------------------------------------------------
 const Sequence::value_type& Sequence::front() const
 {
     if(head == nullptr){
@@ -148,7 +221,10 @@ const Sequence::value_type& Sequence::front() const
 
 
 
-
+// ---------------------------------------------------------------------------
+// back -- rerturns the element at the tailof the sequence
+//      Returns: value -- The value of item at tail of sequence.
+// --------------------------------------------------------------------------
 const Sequence::value_type& Sequence::back() const
 {
     if(head == nullptr){
@@ -161,7 +237,10 @@ const Sequence::value_type& Sequence::back() const
 
 
 
-
+// ---------------------------------------------------------------------------
+// empty -- returns whether the sequence is empty or not
+//      Returns: bool -- True if sequence empty, false if not.
+// --------------------------------------------------------------------------
 bool Sequence::empty() const
 {
     bool empty = false;
@@ -173,7 +252,10 @@ bool Sequence::empty() const
 
 
 
-
+// ---------------------------------------------------------------------------
+// size -- returns the size of the sequence
+//      Returns: numElts -- the number of elements in the sequence.
+// --------------------------------------------------------------------------
 Sequence::size_type Sequence::size() const
 {
     return numElts;
@@ -182,14 +264,17 @@ Sequence::size_type Sequence::size() const
 
 
 
-
+// ---------------------------------------------------------------------------
+// clear -- clears all elements in the sequence
+//      Returns: numElts -- the number of elements in the sequence.
+// --------------------------------------------------------------------------
 void Sequence::clear()
 {
     SequenceNode * current = head; 
     while (current != nullptr){ 
-        SequenceNode * killMeNext = current->next; 
+        SequenceNode * to_kill_next = current->next; 
         delete current; 
-        current = killMeNext;
+        current = to_kill_next;
     }
     head = nullptr;
     tail = nullptr;
@@ -200,9 +285,45 @@ void Sequence::clear()
 
 
 //TODO
-void Sequence::erase(size_type position, size_type count)
-{   
-    
+void Sequence::erase(size_type position, size_type count){
+
+    //Throw error if position is outside of the seqeunce   
+    if(position > size() || position < 0){
+        cout << "No element " << position << endl;
+        throw exception();
+    } else {
+
+        SequenceNode * start = head;
+
+        //Move start to position
+        for(unsigned int i = 0; i <= position; i++){
+            start = start->next;
+        }
+
+        SequenceNode * end = start;
+
+        //Move end to 'count' positions away from start.
+        //Unless there is nothing else left in the list.
+        for(unsigned int i = 0; i <= count; i++){
+            if(end->next == nullptr){
+                cout << "There are not " << count << " elements after the index:  " << position << endl;
+                throw exception();
+            } else {
+                end = end->next;
+            }
+        }
+
+        //Now that start and end are in place, erase everything in between.
+        //Includes the element end is pointing to and not the element that start is pointing to.
+        tail = start;
+        SequenceNode * current = start->next; 
+        while (current != end){ 
+            SequenceNode * to_kill_next = current->next; 
+            delete current; 
+            current = to_kill_next;
+        }
+        start->next = nullptr;
+    }
 }
 
 
