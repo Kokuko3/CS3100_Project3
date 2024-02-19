@@ -270,12 +270,15 @@ Sequence::size_type Sequence::size() const
 // --------------------------------------------------------------------------
 void Sequence::clear()
 {
+    //Point current at head
     SequenceNode * current = head; 
+    // iterate through sequence and delete all nodes
     while (current != nullptr){ 
         SequenceNode * to_kill_next = current->next; 
         delete current; 
         current = to_kill_next;
     }
+    //Set sequence header
     head = nullptr;
     tail = nullptr;
     numElts = 0;
@@ -283,7 +286,14 @@ void Sequence::clear()
 
 
 
-
+// ---------------------------------------------------------------------------
+// Erase -- removes specified elements of a Sequence
+//      Inputs: 
+//          position -- The position of the first element in the list.
+//              Must satisfy condition: position >= 0 && position <= last_index(). 
+//              
+//          count -- How many elements need to be erased.
+// --------------------------------------------------------------------------
 //TODO
 void Sequence::erase(size_type position, size_type count){
 
@@ -292,7 +302,8 @@ void Sequence::erase(size_type position, size_type count){
         cout << "No element " << position << endl;
         throw exception();
     } else {
-
+        
+        //Point start at head
         SequenceNode * start = head;
 
         //Move start to position
@@ -300,6 +311,7 @@ void Sequence::erase(size_type position, size_type count){
             start = start->next;
         }
 
+        //Point end at start
         SequenceNode * end = start;
 
         //Move end to 'count' positions away from start.
@@ -328,7 +340,10 @@ void Sequence::erase(size_type position, size_type count){
 
 
 
-
+// ---------------------------------------------------------------------------
+// print -- print all elements in the sequence.
+//      Input: os -- ostream to print to. 
+// --------------------------------------------------------------------------
 void Sequence::print(ostream& os) const
 {
     SequenceNode * current = head;
